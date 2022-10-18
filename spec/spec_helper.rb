@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "sijiaoh_rails_toolkit"
+require "test_rails"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -17,5 +18,11 @@ RSpec.configure do |config|
 
   config.define_derived_metadata file_path: %r{/spec/system/} do |metadata|
     metadata[:type] = :system
+  end
+
+  config.before :all, type: :system do
+    test_rails = TestRails.new
+    test_rails.destroy
+    test_rails.create!
   end
 end
