@@ -12,4 +12,10 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.order = :random
+
+  config.define_derived_metadata file_path: %r{/spec/system/} do |metadata|
+    metadata[:type] = :system
+  end
 end
