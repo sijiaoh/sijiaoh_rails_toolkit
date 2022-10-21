@@ -17,9 +17,10 @@ RSpec.configure do |config|
     metadata[:type] = :system
   end
 
+  config.include TestRails, type: :system
+
   config.before :all, type: :system do
-    test_rails = TestRails.new
-    test_rails.destroy
-    test_rails.create!
+    destroy
+    create!
   end
 end
