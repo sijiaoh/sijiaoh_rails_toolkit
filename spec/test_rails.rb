@@ -1,11 +1,11 @@
 require "fileutils"
 
 # Create rails project under tmp directory.
-class TestRails
-  RAILS_DIR = "tmp/test_rails".freeze
+module TestRails
+  DIR = "/tmp/#{SijiaohRailsToolkit.name.downcase}/test_rails".freeze
 
   def create!
-    assert_directory_not_exist
+    assert_project_generated
 
     create_directory
     copy_dotbundle_to_directory
@@ -14,28 +14,44 @@ class TestRails
   end
 
   def destroy
-    FileUtils.rm_rf RAILS_DIR
+    FileUtils.rm_rf DIR
   end
 
   def system!(command)
-    system command, chdir: RAILS_DIR, exception: true
+    assert_project_generated
+    system command, chdir: DIR, exception: true
+  end
+
+  def glob(pattern)
+    assert_project_generated
+    Dir.glob(File.join(DIR, pattern))
+  end
+
+  def file_exists?(path)
+    assert_project_generated
+    File.exist?(File.join(DIR, path))
+  end
+
+  def read_file(path)
+    assert_project_generated
+    File.read(File.join(DIR, path))
   end
 
   private
 
-  def assert_directory_not_exist
-    raise "Directory #{RAILS_DIR} already exists" if File.exist? RAILS_DIR
+  def assert_project_generated
+    raise "Project not generated" unless File.exist?(File.join(DIR, "Gemfile"))
   end
 
   def create_directory
-    FileUtils.mkdir_p RAILS_DIR
+    FileUtils.mkdir_p DIR
   end
 
   def copy_dotbundle_to_directory
-    FileUtils.cp_r ".bundle", RAILS_DIR
+    FileUtils.cp_r ".bundle", DIR
   end
 
   def rails_new
-    system! "yes | bundle exec rails new ."
+    system "yes | bundle exec rails new --skip-git #{DIR}", exception: true
   end
 end
