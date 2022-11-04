@@ -5,7 +5,7 @@ module TestRails
   DIR = "/tmp/#{SijiaohRailsToolkit.name.downcase}/test_rails".freeze
 
   def create!
-    assert_project_generated
+    assert_project_not_generated
 
     create_directory
     copy_dotbundle_to_directory
@@ -48,6 +48,10 @@ module TestRails
 
   def assert_project_generated
     raise "Project not generated" unless File.exist?(File.join(DIR, "Gemfile"))
+  end
+
+  def assert_project_not_generated
+    raise "Project generated" if File.exist?(File.join(DIR, "Gemfile"))
   end
 
   def create_directory
