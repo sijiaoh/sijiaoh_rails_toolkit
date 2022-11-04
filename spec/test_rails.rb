@@ -19,7 +19,14 @@ module TestRails
 
   def system!(command)
     assert_project_generated
-    system command, chdir: DIR, exception: true
+    system(
+      # bundlerの環境引数が引き継がれないようにする。
+      { "PATH" => "#{DIR}/bin:#{ENV.fetch('PATH', nil)}" },
+      command,
+      chdir: DIR,
+      exception: true,
+      unsetenv_others: true
+    )
   end
 
   def glob(pattern)
@@ -52,6 +59,7 @@ module TestRails
   end
 
   def rails_new
+    # system!とは違いこちらはbundlerの環境変数を引き継いで、プロジェクト指定のrailsのバージョンを使用する。
     system "yes | bundle exec rails new --skip-git #{DIR}", exception: true
   end
 end
