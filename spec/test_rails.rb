@@ -11,6 +11,7 @@ module TestRails
     copy_dotbundle_to_directory
 
     rails_new
+    bundle_install
     install_this_gem
   end
 
@@ -38,6 +39,16 @@ module TestRails
   def file_exists?(path)
     assert_project_generated
     File.exist?(File.join(DIR, path))
+  end
+
+  def mkdir(path)
+    assert_project_generated
+    FileUtils.mkdir_p(File.join(DIR, path))
+  end
+
+  def rm(path)
+    assert_project_generated
+    FileUtils.rm_rf(File.join(DIR, path))
   end
 
   def read_file(path)
@@ -79,7 +90,17 @@ module TestRails
 
   def rails_new
     # system!とは違いこちらはbundlerの環境変数を引き継いで、プロジェクト指定のrailsのバージョンを使用する。
-    system "yes | bundle exec rails new --skip-git #{DIR}", exception: true
+    system "yes | bundle exec rails new --skip-bundle --skip-git #{DIR}", exception: true
+  end
+
+  def bundle_install
+    FileUtils.mkdir_p vendor_dir
+    rm "vendor"
+    system! "ln -sf #{vendor_dir} #{File.join(DIR, 'vendor')}"
+  end
+
+  def vendor_dir
+    File.join File.dirname(DIR), "vendor"
   end
 
   def install_this_gem
