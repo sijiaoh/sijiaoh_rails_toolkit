@@ -64,9 +64,9 @@ module TestRails
   def ls(path = "", full_path: false)
     assert_project_generated
     if full_path
-      glob(File.join(DIR, path)).map { |f| File.expand_path(f) }
+      glob(File.join(path, "*"))
     else
-      glob(File.join(DIR, path)).map { |f| File.basename(f) }
+      glob(File.join(path, "*")).map { |f| File.basename(f) }
     end
   end
 
