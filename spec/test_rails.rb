@@ -45,6 +45,11 @@ module TestRails
     File.read(File.join(DIR, path))
   end
 
+  def write_file(path, content)
+    assert_project_generated
+    File.write(File.join(DIR, path), content)
+  end
+
   private
 
   def assert_project_generated
