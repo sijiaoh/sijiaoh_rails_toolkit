@@ -11,6 +11,7 @@ module TestRails
     copy_dotbundle_to_directory
 
     rails_new
+    install_this_gem
   end
 
   def destroy
@@ -65,5 +66,22 @@ module TestRails
   def rails_new
     # system!とは違いこちらはbundlerの環境変数を引き継いで、プロジェクト指定のrailsのバージョンを使用する。
     system "yes | bundle exec rails new --skip-git #{DIR}", exception: true
+  end
+
+  def install_this_gem
+    gemfile = read_file "Gemfile"
+    write_file "Gemfile", gemfile + "\ngem 'sijiaoh_rails_toolkit', path: '#{project_root_dir}'\n"
+
+    system! "bundle install"
+  end
+
+  def project_root_dir
+    current_dir = File.expand_path(".")
+    while current_dir != "/"
+      return current_dir if File.exist?(File.join(current_dir, "Gemfile"))
+
+      current_dir = File.dirname(current_dir)
+    end
+    raise "Gemfile not found"
   end
 end
