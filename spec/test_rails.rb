@@ -50,6 +50,15 @@ module TestRails
     File.write(File.join(DIR, path), content)
   end
 
+  def ls(path = "", full_path: false)
+    assert_project_generated
+    if full_path
+      glob(File.join(DIR, path)).map { |f| File.expand_path(f) }
+    else
+      glob(File.join(DIR, path)).map { |f| File.basename(f) }
+    end
+  end
+
   private
 
   def assert_project_generated
