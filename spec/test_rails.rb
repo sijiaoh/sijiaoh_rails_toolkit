@@ -26,7 +26,7 @@ module TestRails # rubocop:disable Metrics/ModuleLength
   end
 
   def reset
-    destroy
+    FileUtils.rm_rf RAILS_DIR
     FileUtils.cp_r BACKUP_DIR, RAILS_DIR
   end
 
