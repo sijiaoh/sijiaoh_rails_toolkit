@@ -116,6 +116,7 @@ module TestRails # rubocop:disable Metrics/ModuleLength
     FileUtils.mkdir_p VENDOR_DIR
     rm "vendor"
     system! "ln -sf #{VENDOR_DIR} #{to_rails_path('vendor')}"
+    system! "bundle install"
   end
 
   def install_this_gem
