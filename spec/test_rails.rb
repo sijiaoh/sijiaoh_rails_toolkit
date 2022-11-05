@@ -1,7 +1,7 @@
 require "fileutils"
 
 # Create rails project under tmp directory.
-module TestRails
+module TestRails # rubocop:disable Metrics/ModuleLength
   BASE_DIR = File.join "tmp", SijiaohRailsToolkit.name.downcase
   VENDOR_DIR = File.join BASE_DIR, "vendor"
   BACKUP_DIR = File.join BASE_DIR, "test_rails_backup"
@@ -42,7 +42,7 @@ module TestRails
   end
 
   def to_rails_path(path)
-    to_rails_path path
+    File.join RAILS_DIR, path
   end
 
   def glob(pattern)
