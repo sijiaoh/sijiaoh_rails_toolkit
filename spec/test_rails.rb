@@ -1,3 +1,4 @@
+require "open3"
 require "fileutils"
 
 # Create rails project under tmp directory.
@@ -32,14 +33,17 @@ module TestRails # rubocop:disable Metrics/ModuleLength
 
   def system!(command)
     assert_project_generated
-    system(
+
+    o, e, s = Open3.capture3(
       # bundlerの環境引数が引き継がれないようにする。
       { "PATH" => "#{RAILS_DIR}/bin:#{ENV.fetch('PATH', nil)}" },
       command,
       chdir: RAILS_DIR,
-      exception: true,
       unsetenv_others: true
     )
+    raise "command failed: #{command}\n#{o}\n#{e}" unless s.success?
+
+    o
   end
 
   def to_rails_path(path)
