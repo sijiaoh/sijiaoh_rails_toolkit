@@ -41,34 +41,38 @@ module TestRails
     )
   end
 
+  def to_rails_path(path)
+    to_rails_path path
+  end
+
   def glob(pattern)
     assert_project_generated
-    Dir.glob(File.join(RAILS_DIR, pattern))
+    Dir.glob(to_rails_path(pattern))
   end
 
   def file_exists?(path)
     assert_project_generated
-    File.exist?(File.join(RAILS_DIR, path))
+    File.exist?(to_rails_path(path))
   end
 
   def mkdir(path)
     assert_project_generated
-    FileUtils.mkdir_p(File.join(RAILS_DIR, path))
+    FileUtils.mkdir_p(to_rails_path(path))
   end
 
   def rm(path)
     assert_project_generated
-    FileUtils.rm_rf(File.join(RAILS_DIR, path))
+    FileUtils.rm_rf(to_rails_path(path))
   end
 
   def read_file(path)
     assert_project_generated
-    File.read(File.join(RAILS_DIR, path))
+    File.read(to_rails_path(path))
   end
 
   def write_file(path, content)
     assert_project_generated
-    File.write(File.join(RAILS_DIR, path), content)
+    File.write(to_rails_path(path), content)
   end
 
   def ls(path = "", full_path: false)
@@ -83,11 +87,11 @@ module TestRails
   private
 
   def assert_project_generated
-    raise "Project not generated" unless File.exist?(File.join(RAILS_DIR, "Gemfile"))
+    raise "Project not generated" unless File.exist?(to_rails_path("Gemfile"))
   end
 
   def assert_project_not_generated
-    raise "Project generated" if File.exist?(File.join(RAILS_DIR, "Gemfile"))
+    raise "Project generated" if File.exist?(to_rails_path("Gemfile"))
   end
 
   def create_directory
@@ -106,7 +110,7 @@ module TestRails
   def bundle_install
     FileUtils.mkdir_p VENDOR_DIR
     rm "vendor"
-    system! "ln -sf #{VENDOR_DIR} #{File.join(RAILS_DIR, 'vendor')}"
+    system! "ln -sf #{VENDOR_DIR} #{to_rails_path('vendor')}"
   end
 
   def install_this_gem
