@@ -2,7 +2,10 @@ require "fileutils"
 
 # Create rails project under tmp directory.
 module TestRails
-  DIR = "/tmp/#{SijiaohRailsToolkit.name.downcase}/test_rails".freeze
+  BASE_DIR = File.join "tmp", SijiaohRailsToolkit.name.downcase
+  VENDOR_DIR = File.join BASE_DIR, "vendor"
+  BACKUP_DIR = File.join BASE_DIR, "test_rails_backup"
+  RAILS_DIR = File.join BASE_DIR, "test_rails"
 
   def create!
     assert_project_not_generated
@@ -16,16 +19,23 @@ module TestRails
   end
 
   def destroy
-    FileUtils.rm_rf DIR
+    FileUtils.rm_rf RAILS_DIR
+    FileUtils.rm_rf BACKUP_DIR
+    # Not remove vendor directory to use it as cache for next test.
+  end
+
+  def reset
+    destroy
+    FileUtils.cp_r BACKUP_DIR, RAILS_DIR
   end
 
   def system!(command)
     assert_project_generated
     system(
       # bundlerの環境引数が引き継がれないようにする。
-      { "PATH" => "#{DIR}/bin:#{ENV.fetch('PATH', nil)}" },
+      { "PATH" => "#{RAILS_DIR}/bin:#{ENV.fetch('PATH', nil)}" },
       command,
-      chdir: DIR,
+      chdir: RAILS_DIR,
       exception: true,
       unsetenv_others: true
     )
@@ -33,32 +43,32 @@ module TestRails
 
   def glob(pattern)
     assert_project_generated
-    Dir.glob(File.join(DIR, pattern))
+    Dir.glob(File.join(RAILS_DIR, pattern))
   end
 
   def file_exists?(path)
     assert_project_generated
-    File.exist?(File.join(DIR, path))
+    File.exist?(File.join(RAILS_DIR, path))
   end
 
   def mkdir(path)
     assert_project_generated
-    FileUtils.mkdir_p(File.join(DIR, path))
+    FileUtils.mkdir_p(File.join(RAILS_DIR, path))
   end
 
   def rm(path)
     assert_project_generated
-    FileUtils.rm_rf(File.join(DIR, path))
+    FileUtils.rm_rf(File.join(RAILS_DIR, path))
   end
 
   def read_file(path)
     assert_project_generated
-    File.read(File.join(DIR, path))
+    File.read(File.join(RAILS_DIR, path))
   end
 
   def write_file(path, content)
     assert_project_generated
-    File.write(File.join(DIR, path), content)
+    File.write(File.join(RAILS_DIR, path), content)
   end
 
   def ls(path = "", full_path: false)
@@ -73,34 +83,30 @@ module TestRails
   private
 
   def assert_project_generated
-    raise "Project not generated" unless File.exist?(File.join(DIR, "Gemfile"))
+    raise "Project not generated" unless File.exist?(File.join(RAILS_DIR, "Gemfile"))
   end
 
   def assert_project_not_generated
-    raise "Project generated" if File.exist?(File.join(DIR, "Gemfile"))
+    raise "Project generated" if File.exist?(File.join(RAILS_DIR, "Gemfile"))
   end
 
   def create_directory
-    FileUtils.mkdir_p DIR
+    FileUtils.mkdir_p RAILS_DIR
   end
 
   def copy_dotbundle_to_directory
-    FileUtils.cp_r ".bundle", DIR
+    FileUtils.cp_r ".bundle", RAILS_DIR
   end
 
   def rails_new
     # system!とは違いこちらはbundlerの環境変数を引き継いで、プロジェクト指定のrailsのバージョンを使用する。
-    system "yes | bundle exec rails new --skip-bundle --skip-git #{DIR}", exception: true
+    system "yes | bundle exec rails new --skip-bundle --skip-git #{RAILS_DIR}", exception: true
   end
 
   def bundle_install
-    FileUtils.mkdir_p vendor_dir
+    FileUtils.mkdir_p VENDOR_DIR
     rm "vendor"
-    system! "ln -sf #{vendor_dir} #{File.join(DIR, 'vendor')}"
-  end
-
-  def vendor_dir
-    File.join File.dirname(DIR), "vendor"
+    system! "ln -sf #{VENDOR_DIR} #{File.join(RAILS_DIR, 'vendor')}"
   end
 
   def install_this_gem
@@ -118,5 +124,10 @@ module TestRails
       current_dir = File.dirname(current_dir)
     end
     raise "Gemfile not found"
+  end
+
+  def create_backup
+    FileUtils.rm_rf BACKUP_DIR
+    FileUtils.cp_r RAILS_DIR, BACKUP_DIR
   end
 end
