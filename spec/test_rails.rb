@@ -16,6 +16,7 @@ module TestRails # rubocop:disable Metrics/ModuleLength
     rails_new
     bundle_install
     install_this_gem
+    create_backup
   end
 
   def destroy
