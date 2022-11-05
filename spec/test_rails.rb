@@ -27,6 +27,8 @@ module TestRails # rubocop:disable Metrics/ModuleLength
   end
 
   def reset
+    assert_project_generated
+
     FileUtils.rm_rf RAILS_DIR
     FileUtils.cp_r BACKUP_DIR, RAILS_DIR
   end
